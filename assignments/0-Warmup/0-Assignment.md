@@ -19,7 +19,9 @@ Please provide answers to these questions using markdown notation and place them
 3. Please provide a link to the repository you are using for this class.
 
    https://github.com/aydenq04/cs283
+   
 4. Briefly describe what you want to get out of this class.
+
    I'm interesting in learning more about linux and command line interfaces. Also scripting is something I want to learn how to do. 
 
 5. Briefly describe any concerns you might be having with being successful in this class (if any).
