@@ -23,7 +23,12 @@ int setup_buff(char *buff, char *user_str, int len){
     int output_length = 0;		// Tracks the length of the output
     int whitespace = 0;			// Tracks any extra whitespace
 
-    
+    // Trim leading whitespace
+    while (*input == ' ' || *input == '\t') {
+    	input++;
+    }
+
+
 	// Navigates through input string
     while (*input != '\0') {
     	// Check for whitespace
@@ -44,12 +49,18 @@ int setup_buff(char *buff, char *user_str, int len){
 
     	input++;
 		// Error if input is larger than the buffer
-    	if (input_length > len) {
+    	if (input_length > len + 1) {
     		return -1;
     	}
     }
+	// Trim trailing whitespace
+	if (output > buff && *(output - 1) == ' ') {
+		output--;
+		output_length--;
+	}
+
 	// Fill the rest of the buffer with '.'
-	while (output_length < len) {
+	while (output_length < len + 1) {
 		*output++ = '.';
 		output_length++;
 	}
@@ -63,10 +74,11 @@ int setup_buff(char *buff, char *user_str, int len){
 }
 
 void print_buff(char *buff, int len){
-    printf("Buffer:  ");
+    printf("Buffer:  [");
     for (int i=0; i<len; i++){
         putchar(*(buff+i));
     }
+    putchar(']');
     putchar('\n');
 }
 
@@ -96,15 +108,24 @@ int count_words(char *buff, int len, int str_len){
 
 //ADD OTHER HELPER FUNCTIONS HERE FOR OTHER REQUIRED PROGRAM OPTIONS
 
-char *reverse_string(char *buff, int str_len) {
-	char *reversed = (char *)malloc((str_len + 1) * sizeof(char));
-	
+void reverse_buffer(char *buff,int str_len, int len) {
+	char *reversed = (char *)malloc((len + 1) * sizeof(char));
+	int rev_len = 0;
 	for (int i = 0; i < str_len; i++) {
 		reversed[i] = buff[str_len - 1 - i];
+		rev_len++;
 	}
 	
-	reversed[str_len] = '\0';
-	return reversed;
+	while (rev_len < len) {
+		reversed[rev_len] = '.';
+		rev_len++;
+	}
+	
+	for (int i = 0; i < len; i++) {
+		buff[i] = reversed[i];
+	}
+	free(reversed);
+
 }
 
 void word_print(char *buff, int str_len) {
@@ -123,7 +144,7 @@ void word_print(char *buff, int str_len) {
 				printf("%c", buff[start + j]);
 			}
 			
-			printf(" (%d)\n", len);
+			printf("(%d)\n", len);
 
 			len = 0;
 
@@ -138,7 +159,6 @@ void word_print(char *buff, int str_len) {
 }
 
 int main(int argc, char *argv[]){
-
     char *buff;             //placehoder for the internal buffer
     char *input_string;     //holds the string provided by the user on cmd line
     char opt;               //used to capture user option from cmd line
@@ -179,20 +199,16 @@ int main(int argc, char *argv[]){
         usage(argv[0]);
         exit(1);
     }
-
     input_string = argv[2]; //capture the user input string
-
-    //TODO:  #3 Allocate space for the buffer using malloc and
+   //TODO:  #3 Allocate space for the buffer using malloc and
     //          handle error if malloc fails by exiting with a 
     //          return code of 99
     // CODE GOES HERE FOR #3
-
 	buff = (char *)malloc(BUFFER_SZ * sizeof(char));
 	if (buff == NULL) {
 		printf("Error allocating memory for buffer.");
 		exit(99);
 	}
-
 
     user_str_len = setup_buff(buff, input_string, BUFFER_SZ);     //see todos
     if (user_str_len < 0){
@@ -214,14 +230,17 @@ int main(int argc, char *argv[]){
         //       the case statement options
 
         case 'r':
-			char *reversed = reverse_string(buff, user_str_len);
-			printf("Word: %s\n", input_string);
-			printf("Reversed: %s\n", reversed);
-			free(reversed);
+			reverse_buffer(buff,user_str_len, BUFFER_SZ);
 			break;
         case 'w':
 			word_print(buff, user_str_len);        	
+			printf("\n");
+			rc = count_words(buff, BUFFER_SZ, user_str_len);
+			printf("Number of words returned: %d\n", rc);
 			break;
+		case 'x':
+			printf("Not Implemented!\n");
+			exit(0);
 
         default:
             usage(argv[0]);
@@ -248,4 +267,5 @@ int main(int argc, char *argv[]){
 			of hard coded buffer size values. Furthermore if we ever wanted
 			to reuse this function in a similar program this makes the process
 			much easier.
+
 */
